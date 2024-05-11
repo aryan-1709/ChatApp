@@ -3,14 +3,18 @@ import { useState, useEffect } from "react";
 import ChatApp from "./ChatApp";
 import { IoMdVideocam } from "react-icons/io";
 import { FaPhone, FaSearch } from "react-icons/fa";
-import axios from "axios";
-import image from './images/dummy.jpg';
+import image from "./images/dummy.jpg";
+import UseSocket from "./Socket";
 
 function MessagingApp() {
+  const socket = UseSocket();
+
   const [list, setList] = useState([]);
   const getData = async () => {
-    const res = await axios.get("http://localhost:5000/get");
-    setList([...list, ...res.data]);
+    socket.on("get", (res) =>{
+      // console.log("res", res);
+      setList([...list, ...res]);
+    })
   };
 
   useEffect(() => {
@@ -18,14 +22,16 @@ function MessagingApp() {
   }, []);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const handlePersonClick = (person) => {
+    console.log("selectedPerson1", person)
     setSelectedPerson(person);
   };
   const checkString = (s) => {
     let str = s;
-    if (s.length >= 34) {
-      str = s.substring(0, 31);
-      str += "...";
-    }
+    if (s)
+      if (s.length >= 34) {
+        str = s.substring(0, 31);
+        str += "...";
+      }
     return str;
   };
 
@@ -73,7 +79,6 @@ function MessagingApp() {
                 </div>
                 <div className="w-full border-b-4 border-slate-400"></div>
               </div>
-                
             </li>
           ))}
         </ul>
@@ -84,7 +89,11 @@ function MessagingApp() {
       {selectedPerson && (
         <div className=" w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
           <div className="">
-            <img className="rounded-full h-[200px] w-[200px] aspect-w-1 aspect-h-1 shadow-[0_0px_80px_-16px_rgba(0,0,0,0.3)] shadow-black" src={image} alt="no image" />
+            <img
+              className="rounded-full h-[200px] w-[200px] aspect-w-1 aspect-h-1 shadow-[0_0px_80px_-16px_rgba(0,0,0,0.3)] shadow-black"
+              src={image}
+              alt="no image"
+            />
             <div className="mt-6 flex flex-col items-center text-center">
               <div className="">{selectedPerson.status}</div>
               <div className="text-2xl">~{selectedPerson.name}</div>
@@ -105,5 +114,3 @@ function MessagingApp() {
 }
 
 export default MessagingApp;
-
-

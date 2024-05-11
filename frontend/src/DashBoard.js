@@ -1,18 +1,16 @@
 import * as React from "react";
+import Dropdown from "./Dropdown";
+// import { useRef, useState, useEffect } from "react";
+// import { useContext } from "react";
+// import useSocket from "./Socket";
 
 function DashBoard() {
   return (
-    <div className="flex gap-5 justify-between py-1 pr-20 pl-6 bg-white border border-solid border-slate-950 max-md:flex-wrap max-md:px-5">
-      <div className="flex gap-5 justify-between text-sm text-neutral-400 max-md:flex-wrap">
-        <img
-          loading="lazy"
-          src="https://cdn.builder.io/api/v1/image/assets/TEMP/786bf8f8989cb8ba64bc360d39b989b83e32694c5d3cd729357395843a10b94e?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&"
-          alt="Not found"
-          className="shrink-0 my-auto w-6 aspect-square"
-        />
-        <div className="flex flex-col grow shrink-0 justify-center basis-0 w-fit">
-        </div>
+    <div className="flex gap-5 justify-between py-1 pr-20 pl-6 bg-slate-300 border border-solid border-slate-950 max-md:flex-wrap max-md:px-5">
+      <div className="mt-3">
+        <Dropdown />
       </div>
+
       <div className="flex gap-3 whitespace-nowrap">
         <img
           loading="lazy"
@@ -35,17 +33,9 @@ function DashBoard() {
               />
             </div>
           </div>
-          <img
-            loading="lazy"
-            srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/e1bb3252744325191acf1abb38dc4a3c6bc598fd097206f16f9099ac78526d5d?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&"
-            alt="Not found"
-            className="shrink-0 w-12 aspect-square"
-          />
         </div>
       </div>
     </div>
   );
 }
-
-
-export default DashBoard;
+export { DashBoard};

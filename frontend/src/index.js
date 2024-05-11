@@ -6,9 +6,10 @@ import './index.css';
 // import MessagingApp from './MessagingApp';
 // import Chats from './component/Chats';
 // import DashBoard from './DashBoard';
+import WebSocket from './WebSocket';
 import FrontPage from './component/FrontPage';
 // import UserDetails from './UserDetails';
-import reportWebVitals from './reportWebVitals';
+// import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -20,4 +21,4 @@ root.render(
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// reportWebVitals();

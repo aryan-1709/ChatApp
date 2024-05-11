@@ -141,3 +141,167 @@
 //   },
 //   { new: true, upsert: true } // Options: return the updated document and create if it doesn't exist
 // )
+
+
+
+
+
+
+
+// const data = new Schema({
+//   name: "Zoro",
+//   status: "syudent",
+//   curr: "Hay aryan",
+// });
+
+// Schema.findOne({name: data.name})
+//   .then(existingData => {
+//     if(!existingData){
+//       data.save();
+//     }
+//     else{
+//       console.log("already exist");
+//     }
+//   })
+
+
+
+
+
+
+
+    // let res = await axios.get("http://localhost:5000/get");
+    // res = res.data;
+    // const i = res.findIndex((obj) => obj.name === props.person.name);
+    // console.log(props.person.name);
+
+    // console.log(res[i].message);
+    // if (res[i].message.length > 0) {
+    //   for (let j = 0; j < res[i].message[0][0].msgs.length; j++) {
+    //     tempMessages.push(res[i].message[0][0].msgs[j]);
+    //   }
+    // }
+
+    // setMessages(tempMessages);
+    // setMsg("");
+
+
+
+
+
+
+
+
+    
+        // const sendData = async () => {
+        //   const response = await axios.post(
+        //     "http://localhost:5000/api/auth",
+        //     result
+        //   );
+        //   console.log("Data sent successfully:", response.data);
+        //   responseData = response.data;
+        //   // console.log("responceData", responseData);
+        //   setLoading(false);
+        // };
+
+
+
+
+
+
+
+
+
+
+        
+// app.post("/api/auth", (req, res) => {
+//   const dataReceived = req.body.user; // Data sent from the client
+//   // if(dataReceived.length > 0)
+
+// const data = new Schema({
+//   _id: dataReceived.uid,
+//   name: dataReceived.displayName,
+//   status: "student",
+// });
+// console.log(data._id);
+// Schema.findOne({_id: data._id})
+//   .then(existingData => {
+//     if (!existingData) {
+//       data.save();
+//       console.log("Created User")
+//     } else {
+//       console.log("already exists");
+//     }
+//   })
+//     console.log("Data received:", dataReceived.displayName);
+//     res.send(dataReceived.uid);
+// });
+
+// app.post("/api/data", (req, res) => {
+//   const dataReceived = req.body; // Data sent from the client
+//   console.log("Data received:", dataReceived.id);
+
+//   Schema.findOneAndUpdate(
+//     { name: dataReceived.name }, // Find the document with the given name
+//     {
+//       $set: { [`message.0.id`]:dataReceived.id
+//       },
+//       $push: { [`message.0.msgs`]: {  // Push a new message object to the "msgs" array inside the first message object
+//         message: dataReceived.message,
+//         messageType: dataReceived.messageType,
+//         time: dataReceived.time,
+//       }}
+//     },
+//     { new: true, upsert: true } // Options: return the updated document and create if it doesn't exist
+//   ).then((result) => {
+//     // console.log('Document updated successfully:', result.message[0]);
+//     Schema.find().then((result) => {
+//       app.get("/get", (req, res) => {
+//         res.send(result);
+//       });
+//     });
+//   }).catch((err) => {
+//     console.error('Error updating document:', err);
+//   });
+
+//   res.send("Data received successfully");
+// });
+
+// Schema.find().then((result) => {
+//   app.get("/get", (req, res) => {
+//     res.send(result);
+//   });
+
+// });
+
+
+
+
+
+
+
+
+
+
+  // const socket = useMemo(() => io("http://localhost:5000"),[]); 
+//   useEffect(()=>{
+//     socket.on("connect", ()=>{
+//         console.log("connected");
+//     })
+//     socket.on("auth", (event)=>{
+//         console.log(event.data);
+
+//     })
+// },[])
+    
+    //{axios.get("http://localhost:5000/api/auth")
+    //   .then((response) => {
+    //     // Handle the response data
+    //     console.log("Response:", response.data);
+    //   })
+    //   .catch((error) => {
+    //     // Handle errors
+    //     console.error("Error:", error);
+    //   });
+    // };
+    // sendData();}
