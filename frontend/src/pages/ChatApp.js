@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {io} from "socket.io-client"
-import { useMemo } from 'react';
 import useSocket from "../Socket/Socket";
-function Message({ selectedPerson, sender }) {
-  console.log(selectedPerson);
-  console.log(sender);
-  const message="dav", time="ssfsf", images = [], messageType = "sent"; 
+function Message(msgs) {
+  // console.log(selectedPerson);
+  // console.log(sender);
+  // const message="dav", time="ssfsf", images = [], messageType = "sent"; 
   return (
     <div
       className={`flex flex-col ${
-        messageType === "sent" ? "items-end" : "items-start"
+        msgs.msgType === "sent" ? "items-end" : "items-start"
       } px-5`}
     >
-      {images.length > 0 && (
+      {/* {msgs.images.length > 0 && (
         <div className="flex gap-3 pr-9">
-          {images.map((imgSrc, index) => (
+          {msgs.images.map((imgSrc, index) => (
             <img
               key={index}
               loading="lazy"
@@ -24,40 +23,31 @@ function Message({ selectedPerson, sender }) {
             />
           ))}
         </div>
-      )}
+      )} */}
       <div
         className={`px-3 py-2 mt-2 text-base font-medium tracking-tight leading-5 text-white rounded-none shadow-sm ${
-          messageType === "sent" ? "bg-slate-700" : "bg-slate-950"
+          msgs.msgType === "sent" ? "bg-slate-700" : "bg-slate-950"
         }`}
       >
-        {message}
+        {msgs.msg}
       </div>
       <time className="mt-2.5 text-xs tracking-normal whitespace-nowrap text-neutral-500">
-        {time}
+        {msgs.time}
       </time>
     </div>
   );
 }
 
 function ChatApp(props) {
-  console.log("props", props);
-  // const socket = useMemo(()=>io("http://localhost:5000"), []);  
+  console.log("props", props); 
   const socket = useSocket();
-
   const [list, setList] = useState([]);
-  // const getData = async () => {
-  //   socket.on("get", (res) =>{
-  //     console.log("res", res);
-  //     setList([...list, ...res]);
-  //   })
-  // };
   useEffect(() => {
     socket.on("get", (res) =>{
       console.log("res", res);
       setList([...list, ...res]);
     })
   }, []);
-
 
   const [msg, setMsg] = useState("");
 
@@ -71,12 +61,11 @@ function ChatApp(props) {
     console.log("result", result);
   }
 
-
   useEffect(() => {
     // socket.on("get", (res) => {
       // setresult(res);
-      const i = list.findIndex((obj) => obj.name === props.person.name);
-      console.log(props.person.name,"i  ",i);
+      const i = list.findIndex((obj) => obj.name === props.username);
+      console.log(props.username,"i  ",i);
       console.log(list[i]);
   },[props]);
 
@@ -94,10 +83,12 @@ function ChatApp(props) {
     if (msg.trim() !== "") {
       console.log("name",props)
       const newItem = {
-        sender: props.person.name,
+        sender: props.sender,
+        recipient: props.selectedPerson.username,
         msg: msg,
         time: `Today ${currentTime}`,
         msgType: "sent",
+        images: [],
       };
       console.log("props",props)
       const sendData = async () => {
@@ -116,8 +107,8 @@ function ChatApp(props) {
         <div className="flex gap-5 flex-col md:flex-row">
           <div className="flex flex-col w-full">
             <div className="flex flex-col grow">
-              {messages.map((msg, index) => (
-                <Message key={index} {...msg} />
+              {messages.map((msgs, index) => (
+                <Message key={index} {...msgs} />
               ))}
             </div>
             <div className="flex-grow"></div>
