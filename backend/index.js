@@ -77,8 +77,11 @@ io.on("connection", (socket) => {
 
     try {
       // Find the sender and recipient users
-      const sender = await User.findOne({ username: dataReceived.sender });
-      const recipient = await User.findOne({ username: dataReceived.recipient });
+      const sender = await User.findById(dataReceived.sender);
+      const recipient = await User.findById(dataReceived.recipient);
+
+      // const sender = await User.findOne({ _id: dataReceived.sender});
+      // const recipient = await User.findOne({ _id: dataReceived.recipient });
 
       if (!sender || !recipient) {
         console.error('Sender or recipient not found');
@@ -87,8 +90,6 @@ io.on("connection", (socket) => {
 
       // Create a new message
       const newMessage = new Message({
-        sender: sender._id,
-        recipient: recipient._id,
         msg: dataReceived.msg,
         msgType: dataReceived.msgType,
         time: dataReceived.time,
@@ -115,10 +116,9 @@ io.on("connection", (socket) => {
         };
         recipient.conversations.push(recipientConvo);
       }
-
       // Add the new message to both conversations
-      senderConvo.messages.push(newMessage.msg);
-      recipientConvo.messages.push(newMessage.msg);
+      senderConvo.messages.push(newMessage);
+      recipientConvo.messages.push(newMessage);
 
       await sender.save();
       await recipient.save();

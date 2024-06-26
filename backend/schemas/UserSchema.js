@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Message = require("./MessageSchema");
 
 const UserSchema = new Schema({
     username: {
@@ -21,10 +22,7 @@ const UserSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'User',
         },
-        messages: [{
-            type: String,
-            // ref: 'Message',
-        }]
+        messages: [Message.schema]
     }],
     status: {
         type: String,
