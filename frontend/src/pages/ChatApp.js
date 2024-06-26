@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {io} from "socket.io-client"
 import useSocket from "../Socket/Socket";
 function Message(msgs) {
-  // console.log(selectedPerson);
-  // console.log(sender);
-  // const message="dav", time="ssfsf", images = [], messageType = "sent"; 
+  console.log(msgs);
   return (
     <div
       className={`flex flex-col ${
@@ -47,7 +44,8 @@ function ChatApp(props) {
       console.log("res", res);
       setList([...list, ...res]);
     })
-  }, []);
+  });
+  
 
   const [msg, setMsg] = useState("");
 
@@ -56,17 +54,25 @@ function ChatApp(props) {
   };
 
   const [messages, setMessages] = useState([]);
-  const [result, setresult] = useState()
-  if(result){
-    console.log("result", result);
-  }
 
   useEffect(() => {
-    // socket.on("get", (res) => {
-      // setresult(res);
-      const i = list.findIndex((obj) => obj.name === props.username);
-      console.log(props.username,"i  ",i);
-      console.log(list[i]);
+    // const msgList = props.selectedPerson.conversations.filter(item => item. .toString() !== props.sender._id.toString());
+    const conversation = props.selectedPerson.conversations.find(conversation => conversation.participant === props.sender._id);
+    conversation.messages.forEach(message => {
+      // Assuming setMessage is a function you want to use to process each message
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          msg: message.msg.toString(),
+          msgType: message.msgType.toString(),
+          time: message.time.toString(),
+        }
+      ]);
+    });
+
+      // const i = list.findIndex((obj) => obj.username === props.selectedPerson._id);
+      // console.log(props.username,"i  ",i);
+      // console.log("List",messages);
   },[props]);
 
   const now = new Date();
@@ -81,22 +87,24 @@ function ChatApp(props) {
     socket.on("auth", (res)=>{console.log("receive",res.user)})
     event.preventDefault();
     if (msg.trim() !== "") {
-      console.log("name",props)
+      // console.log("name",props)
       const newItem = {
-        sender: props.sender,
-        recipient: props.selectedPerson.username,
+        sender: props.sender._id,
+        recipient: props.selectedPerson._id,
         msg: msg,
         time: `Today ${currentTime}`,
         msgType: "sent",
-        images: [],
+        // images: [],
       };
-      console.log("props",props)
+      // console.log("props",props)
       const sendData = async () => {
         socket.emit("msg", newItem)
       };
       sendData();
 
-      setMessages([...messages, newItem]);
+      setMessages([...messages, {msg:newItem.msg, time:newItem.time, msgType:newItem.msgType, 
+      // images:newItem.images
+      }]);
       setMsg(""); // Clear the input field after adding the message
     }
   };

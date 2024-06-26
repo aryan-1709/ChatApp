@@ -21,14 +21,16 @@ function MessagingApp() {
   }, [name, email]);
 
   const [list, setList] = useState([]);
-
+  const [senderdata, setSenderdata] = useState()
   useEffect(() => {
     // Listen for "get" event and update list
     socket.on("get", (res) => {
       console.log("res", res);
       // Filter out items where username is the same as current user's name
       const filteredList = res.filter(item => item.username !== name);
+      const senderlist = res.filter(item => item.email === email);
       setList(filteredList);
+      setSenderdata(senderlist[0])
     });
 
     // Clean up event listener when component unmounts
@@ -101,7 +103,7 @@ function MessagingApp() {
         </ul>
       </div>
       <div className="w-full h-full">
-        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={name} />}
+        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata} />}
       </div>
       {selectedPerson && (
         <div className="w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
@@ -113,7 +115,7 @@ function MessagingApp() {
             />
             <div className="mt-6 flex flex-col items-center text-center">
               <div>{selectedPerson.status}</div>
-              <div className="text-2xl">~{selectedPerson.name}</div>
+              <div className="text-2xl">~{selectedPerson.username}</div>
               <div className="flex justify-center gap-10 w-full pt-5">
                 <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
                   <IoMdVideocam className="scale-150 hover:cursor-pointer" />
