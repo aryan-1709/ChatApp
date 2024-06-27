@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useSocket from "../Socket/Socket";
 function Message(msgs) {
-  console.log(msgs);
   return (
     <div
       className={`flex flex-col ${
@@ -36,19 +35,23 @@ function Message(msgs) {
 }
 
 function ChatApp(props) {
-  console.log("props", props); 
+  console.log("props", props);
   const socket = useSocket();
-  const [list, setList] = useState([]);
   useEffect(() => {
-    socket.on("get", (res) =>{
+    socket.on("get", (res) => {
       console.log("res", res);
-      setList([...list, ...res]);
-    })
+    });
+    socket.on("toReceiver", (data) => {
+      if (data.recipient === props.sender._id && data.sender === props.selectedPerson._id) {
+        setMessages([
+          ...messages,
+          { msg: data.msg, msgType: data.msgType, time: data.time },
+        ]);
+      }
+    });
   });
-  
 
   const [msg, setMsg] = useState("");
-
   const updateMsg = (event) => {
     setMsg(event.target.value);
   };
@@ -56,23 +59,23 @@ function ChatApp(props) {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    // const msgList = props.selectedPerson.conversations.filter(item => item. .toString() !== props.sender._id.toString());
-    const conversation = props.selectedPerson.conversations.find(conversation => conversation.participant === props.sender._id);
-    conversation.messages.forEach(message => {
-      // Assuming setMessage is a function you want to use to process each message
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          msg: message.msg.toString(),
-          msgType: message.msgType.toString(),
-          time: message.time.toString(),
-        }
-      ]);
-    });
-
-      // const i = list.findIndex((obj) => obj.username === props.selectedPerson._id);
-      // console.log(props.username,"i  ",i);
-      // console.log("List",messages);
+    const conversation = props.selectedPerson.conversations.find(
+      (conversation) => conversation.participant === props.sender._id
+    );
+    setMessages([]);
+    if (conversation) {
+      conversation.messages.forEach((message) => {
+        // Assuming setMessage is a function you want to use to process each message
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            msg: message.msg.toString(),
+            msgType: message.msgType.toString(),
+            time: message.time.toString(),
+          },
+        ]);
+      });
+    }
   },[props]);
 
   const now = new Date();
@@ -84,27 +87,27 @@ function ChatApp(props) {
     .padStart(2, "0")}`;
 
   const updateMessage = (event) => {
-    socket.on("auth", (res)=>{console.log("receive",res.user)})
     event.preventDefault();
+    socket.on("auth", (res) => {
+      console.log("receive", res.user);
+    });
     if (msg.trim() !== "") {
-      // console.log("name",props)
       const newItem = {
         sender: props.sender._id,
         recipient: props.selectedPerson._id,
         msg: msg,
         time: `Today ${currentTime}`,
         msgType: "sent",
-        // images: [],
       };
-      // console.log("props",props)
-      const sendData = async () => {
-        socket.emit("msg", newItem)
-      };
-      sendData();
-
-      setMessages([...messages, {msg:newItem.msg, time:newItem.time, msgType:newItem.msgType, 
-      // images:newItem.images
-      }]);
+      socket.emit("msg", newItem);
+      setMessages([
+        ...messages,
+        {
+          msg: newItem.msg,
+          time: newItem.time,
+          msgType: newItem.msgType,
+        },
+      ]);
       setMsg(""); // Clear the input field after adding the message
     }
   };

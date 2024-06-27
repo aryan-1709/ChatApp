@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import UseSocket from "../Socket/Socket";
 
 const FirstPage = () => {
+  const socket = UseSocket();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setemail] = useState('');
@@ -16,7 +18,11 @@ const FirstPage = () => {
     setemail(e.target.value);
   };
 
-  const handleSubmit = (event, ) => {
+  const handleSubmit = (event) => {
+    socket.emit("auth", [username, email]);
+    socket.on("state", (res) => {
+      alert(res);
+    });
     event.preventDefault();
     navigate('/in', {state : {name: username, email: email}})
   };

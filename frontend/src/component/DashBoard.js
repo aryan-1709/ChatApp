@@ -1,10 +1,8 @@
 import * as React from "react";
 import Dropdown from "../pages/Dropdown";
-// import { useRef, useState, useEffect } from "react";
-// import { useContext } from "react";
-// import useSocket from "./Socket";
 
-function DashBoard() {
+function DashBoard({email, name}) {
+  console.log(email);
   return (
     <div className="flex gap-5 justify-between py-1 pr-20 pl-6 bg-slate-300 border border-solid border-slate-950 max-md:flex-wrap max-md:px-5">
       <div className="mt-3">
@@ -21,10 +19,10 @@ function DashBoard() {
         <div className="flex gap-3.5 my-auto">
           <div className="flex flex-col flex-1 justify-center my-auto">
             <div className="self-end text-base font-semibold text-right text-slate-950">
-              Abednego
+              {name}
             </div>
             <div className="flex gap-1 text-sm text-center text-zinc-500">
-              <div className="grow">Property Owner</div>
+              <div className="grow">{email}</div>
               <img
                 loading="lazy"
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/1154ee703093123e1a47296595a665e031bcb079640e4014b549efe912b4c7d0?apiKey=0387e70fd0ca4fd697a1441ac9e964d1&"

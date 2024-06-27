@@ -8,27 +8,20 @@ import UseSocket from "../Socket/Socket";
 import { useLocation } from "react-router-dom";
 
 function MessagingApp() {
+  const [list, setList] = useState([]);
+  const [senderdata, setSenderdata] = useState()
+
   const location = useLocation();
   const { name, email } = location.state;
   const socket = UseSocket();
-
-  useEffect(() => {
-    socket.emit("auth", [name, email]);
-    socket.on("state", (res) => {
-      alert(res);
-    });
-    console.log(name);
-  }, [name, email]);
-
-  const [list, setList] = useState([]);
-  const [senderdata, setSenderdata] = useState()
+  
   useEffect(() => {
     // Listen for "get" event and update list
-    socket.on("get", (res) => {
+    socket.on("get", async (res) => {
       console.log("res", res);
       // Filter out items where username is the same as current user's name
-      const filteredList = res.filter(item => item.username !== name);
-      const senderlist = res.filter(item => item.email === email);
+      const filteredList = await res.filter(item => item.username !== name);
+      const senderlist = await res.filter(item => item.email === email);
       setList(filteredList);
       setSenderdata(senderlist[0])
     });
@@ -37,8 +30,19 @@ function MessagingApp() {
     return () => {
       socket.off("get");
     };
-  }, [name, socket]);
+  }, [socket, email, name]);
 
+  useEffect(() => {
+    socket.on("get", async (res) => {
+      console.log("res 2", res);
+      const filteredList = await res.filter(item => item.username !== name);
+      setList(filteredList);
+    });
+    return () => {
+      socket.off("get");
+    };
+  })
+  
   const handlePersonClick = (person) => {
     console.log("selectedPerson1", person);
     setSelectedPerson(person);
@@ -103,12 +107,12 @@ function MessagingApp() {
         </ul>
       </div>
       <div className="w-full h-full">
-        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata} />}
+        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata}/>}
       </div>
       {selectedPerson && (
         <div className="w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
           <div>
-            <img
+            <image
               className="rounded-full h-[200px] w-[200px] aspect-w-1 aspect-h-1 shadow-[0_0px_80px_-16px_rgba(0,0,0,0.3)] shadow-black"
               src={image}
               alt="no image"
