@@ -35,28 +35,68 @@ function Message(msgs) {
 }
 
 function ChatApp(props) {
-  console.log("props", props);
   const socket = useSocket();
-  useEffect(() => {
-    socket.on("get", (res) => {
-      console.log("res", res);
+  const [msg, setMsg] = useState("");
+  const [messages, setMessages] = useState([]);
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  let found = false;
+  const currentTime = `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}`;
+
+  const updateParent = (mesg, time, msgType) => {
+    const updatedConversations = props.selectedPerson.conversations.map(chat => {
+      if (chat.participant === props.sender._id) {
+        found = true;
+        return {
+          ...chat,
+          messages: [
+            ...chat.messages,
+            {
+              msg: mesg,
+              time: time,
+              msgType: msgType,
+            }
+          ]
+        };
+      }
+      return chat;
     });
+
+    if (!found) {
+      updatedConversations.push({
+        participant: props.sender._id,
+        messages: [{
+          msg: mesg,
+          time: time,
+          msgType: msgType,
+        }]
+      });
+    }
+
+    props.onUpdateConversations(updatedConversations);
+  }
+
+  useEffect(() => {
     socket.on("toReceiver", (data) => {
       if (data.recipient === props.sender._id && data.sender === props.selectedPerson._id) {
+        console.log("sender");
         setMessages([
           ...messages,
           { msg: data.msg, msgType: data.msgType, time: data.time },
         ]);
+        updateParent(data.msg, data.time, data.msgType);
       }
     });
+
   });
 
-  const [msg, setMsg] = useState("");
   const updateMsg = (event) => {
+    event.preventDefault();
     setMsg(event.target.value);
   };
-
-  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     const conversation = props.selectedPerson.conversations.find(
@@ -77,20 +117,9 @@ function ChatApp(props) {
       });
     }
   },[props]);
-
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-
-  const currentTime = `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}`;
-
+ 
   const updateMessage = (event) => {
     event.preventDefault();
-    socket.on("auth", (res) => {
-      console.log("receive", res.user);
-    });
     if (msg.trim() !== "") {
       const newItem = {
         sender: props.sender._id,
@@ -108,8 +137,10 @@ function ChatApp(props) {
           msgType: newItem.msgType,
         },
       ]);
-      setMsg(""); // Clear the input field after adding the message
+      setMsg(""); 
+      updateParent(msg, newItem.time, "sent");
     }
+    
   };
 
   return (

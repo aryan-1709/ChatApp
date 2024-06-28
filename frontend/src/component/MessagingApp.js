@@ -10,23 +10,20 @@ import { useLocation } from "react-router-dom";
 function MessagingApp() {
   const [list, setList] = useState([]);
   const [senderdata, setSenderdata] = useState()
-
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const location = useLocation();
   const { name, email } = location.state;
   const socket = UseSocket();
   
   useEffect(() => {
-    // Listen for "get" event and update list
     socket.on("get", async (res) => {
       console.log("res", res);
-      // Filter out items where username is the same as current user's name
       const filteredList = await res.filter(item => item.username !== name);
       const senderlist = await res.filter(item => item.email === email);
       setList(filteredList);
       setSenderdata(senderlist[0])
     });
 
-    // Clean up event listener when component unmounts
     return () => {
       socket.off("get");
     };
@@ -34,7 +31,7 @@ function MessagingApp() {
 
   useEffect(() => {
     socket.on("get", async (res) => {
-      console.log("res 2", res);
+      setList([]);
       const filteredList = await res.filter(item => item.username !== name);
       setList(filteredList);
     });
@@ -44,7 +41,6 @@ function MessagingApp() {
   })
   
   const handlePersonClick = (person) => {
-    console.log("selectedPerson1", person);
     setSelectedPerson(person);
   };
 
@@ -77,7 +73,25 @@ function MessagingApp() {
     );
   };
 
-  const [selectedPerson, setSelectedPerson] = useState(null);
+  const updateConversations = (updatedConversations) => {
+    const updatedList = list.map(user => {
+      if (user._id === selectedPerson._id) {
+        return {
+          ...user,
+          conversations: updatedConversations
+        };
+      }
+      return user;
+    });
+
+    setSelectedPerson({
+      ...selectedPerson,
+      conversations: updatedConversations
+    });
+
+    setList(updatedList);
+  };
+
 
   return (
     <div className="flex justify-start w-full">
@@ -107,7 +121,7 @@ function MessagingApp() {
         </ul>
       </div>
       <div className="w-full h-full">
-        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata}/>}
+        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata} onUpdateConversations={updateConversations}/>}
       </div>
       {selectedPerson && (
         <div className="w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
