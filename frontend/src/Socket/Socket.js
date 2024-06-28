@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import io from "socket.io-client";
 
-const socket = io("chat-app-lake-two-40.vercel.app");
+const socket = io("http://localhost:5000");
 socket.on("connect",()=>console.log("connected"));
 
 const useSocket = () => {
