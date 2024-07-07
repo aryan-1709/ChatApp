@@ -1,10 +1,9 @@
 const User = require("../schemas/UserSchema");
 const authController = require("./authController");
 const { handleMessage } = require("./handelMessage");
-
+const { callHandeler } = require("./callHandeler");
 
 const handleConnection = (socket, io) => {
-  // Emit data to the client when connected
   User.find().populate({
     path: 'conversations.messages',
     populate: { path: 'sender recipient' }
@@ -12,21 +11,26 @@ const handleConnection = (socket, io) => {
     io.emit("get", result);
   });
 
-  // Handle authentication from client
   socket.on("auth", (info) => {
-    authController.handleAuth(socket, info, io); // Pass `socket` to handleAuth
+    authController.handleAuth(socket, info, io); 
   });
 
-  // Handle incoming messages from client
   socket.on("msg", (info) => {
-    handleMessage(socket, info, io); // Pass `socket` to handleAuth
+    handleMessage(socket, info, io); 
   });
-//   socket.on("msg", require("./handelMessage").handleMessage);
 
-  // Handle disconnect
-  socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
-  });
+  // socket.on("disconnect", () => {
+  //   console.log(`Socket disconnected: ${socket.id}`);
+  // });
+
+  socket.on("makeCall", () => {
+    callHandeler(socket, io);
+  })
+
+  socket.on("notify", res => {
+    console.log(res);
+    io.to(res.toNotify.socketid).emit("userConnected", res.toNotify);
+  })
 };
 
 module.exports = {

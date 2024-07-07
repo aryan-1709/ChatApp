@@ -44,6 +44,10 @@ const handleMessage = async (socket, info, io) => {
         messages: []
       };
       senderUser.conversations.push(senderConversation);
+      await senderUser.save();
+      let newsenderConversation = senderUser.conversations.find(conv => conv.participant.equals(recipientUser._id));
+      newsenderConversation.messages.push(newMessageReceived);
+      await senderUser.save();
     }
 
     if (!recipientConversation) {
@@ -52,8 +56,11 @@ const handleMessage = async (socket, info, io) => {
         messages: []
       };
       recipientUser.conversations.push(recipientConversation);
+      await recipientUser.save();
+      let newrecipientConversation = recipientUser.conversations.find(conv => conv.participant.equals(senderUser._id));
+      newrecipientConversation.messages.push(newMessageSent);
+      await recipientUser.save();
     }
-
     // Add new message to conversations
     senderConversation.messages.push(newMessageReceived);
     recipientConversation.messages.push(newMessageSent);
@@ -62,6 +69,7 @@ const handleMessage = async (socket, info, io) => {
     await recipientUser.save();
 
     info.msgType = "received";
+
     io.emit("toReceiver", info);
 
   } catch (err) {

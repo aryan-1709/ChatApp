@@ -2,9 +2,8 @@ const User = require("../schemas/UserSchema");
 
 const handleAuth = (socket, info, io) => {
   const [name, email] = info;
-  console.log(name, email);
-
-  // Check if user exists and create if not
+  socket.broadcast.emit("userConnected", {socketid:socket.id, email});
+  
   User.findOne({ email })
     .then(async (existingData) => {
       if (!existingData) {
@@ -16,7 +15,6 @@ const handleAuth = (socket, info, io) => {
         await newUser
           .save()
           .then(() => {
-            // io.emit("state", "New User Created");
             console.log("New User Created");
           })
           .catch((err) => {
