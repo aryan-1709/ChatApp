@@ -14,14 +14,13 @@ function MessagingApp() {
   const location = useLocation();
   const { name, email } = location.state;
   const socket = UseSocket();
-  
+
   useEffect(() => {
     socket.on("get", async (res) => {
-      console.log("res", res);
       const filteredList = await res.filter(item => item.username !== name);
       const senderlist = await res.filter(item => item.email === email);
       setList(filteredList);
-      setSenderdata(senderlist[0])
+      setSenderdata(senderlist[0]);
     });
 
     return () => {
@@ -38,40 +37,37 @@ function MessagingApp() {
     return () => {
       socket.off("get");
     };
-  })
-  
+  },[name, socket]);
+
   const handlePersonClick = (person) => {
     setSelectedPerson(person);
   };
 
-  const checkString = (s) => {
-    let str = s;
-    if (s && s.length >= 34) {
-      str = s.substring(0, 31) + "...";
-    }
-    return str;
-  };
-
   const chats = (item, index) => {
+    const dotColor = item.online ? 'bg-green-500' : 'bg-red-500';
+    const msgs = senderdata.conversations.filter((convo) => convo.participant === item._id);
+    const latest = msgs[0].messages[msgs[0].messages.length - 1].msg;
     return (
-      <li key={index} onClick={() => handlePersonClick(item)}>
-        <div className="flex flex-col px-5 pb-0 py-2.5 w-full max-w-[292px] hover:bg-slate-400/[0.5]">
-          <div className="flex gap-5 justify-between">
-            <div className="text-sm font-medium tracking-tight leading-5 text-slate-950">
+      <div key={index} onClick={() => handlePersonClick(item)}>
+        <div className="flex flex-col pb-0 py-2.5 w-full hover:bg-slate-400/[0.5]">
+          <div className="flex gap-5 justify-between items-center">
+            <div className="text-sm font-medium tracking-tight leading-5 text-slate-950 ml-4 flex items-center">
+              <span className={`w-2 h-2 rounded-full mr-1 ${dotColor}`}></span>
               {item.username}
             </div>
-            <div className="flex-auto text-xs tracking-normal text-right text-zinc-500 text-opacity-80">
+            <div className="flex-auto text-xs tracking-normal text-right text-zinc-500 text-opacity-80 mr-4">
               {item.status}
             </div>
           </div>
           <div className="flex gap-5 justify-between mt-2 text-xs font-medium tracking-tight text-zinc-500 text-opacity-80">
-            <div className="flex-auto">{checkString(item.curr)}</div>
+            <div className="flex-auto">{latest}</div>
           </div>
           <div className="w-full border-b-4 border-slate-400"></div>
         </div>
-      </li>
+      </div>
     );
   };
+  
 
   const updateConversations = (updatedConversations) => {
     const updatedList = list.map(user => {
@@ -92,10 +88,13 @@ function MessagingApp() {
     setList(updatedList);
   };
 
+  const handelCall = () => {
+
+  }
 
   return (
-    <div className="flex justify-start w-full">
-      <div className="flex flex-col justify-start items-center mx-auto min-w-[312px] max-w-[312px] max-h-[750px] overflow-auto bg-slate-300 border-r-2 border-slate-500">
+    <div className="flex w-full overflow-auto">
+      <div className="flex flex-col justify-start items-center mx-auto min-w-[252px] max-w-[252px] max-h-[750px] overflow-auto bg-slate-300 border-r-2 border-slate-500">
         <div className="bg-slate-400 px-3 w-full sticky top-0 pb-0 border-b-4 border-slate-500">
           <div className="flex gap-5 justify-between self-stretch w-full whitespace-nowrap">
             <div className="flex gap-1 px-1">
@@ -114,13 +113,13 @@ function MessagingApp() {
             ></input>
           </div>
         </div>
-        <ul>
+        <div className="w-full h-[100vh]">
           {list.map((item, index) => (
             <React.Fragment key={index}>{chats(item, index)}</React.Fragment>
           ))}
-        </ul>
+        </div>
       </div>
-      <div className="w-full h-full">
+      <div className="flex-grow h-full">
         {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata} onUpdateConversations={updateConversations}/>}
       </div>
       {selectedPerson && (
@@ -136,7 +135,7 @@ function MessagingApp() {
               <div className="text-2xl">~{selectedPerson.username}</div>
               <div className="flex justify-center gap-10 w-full pt-5">
                 <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
-                  <IoMdVideocam className="scale-150 hover:cursor-pointer" />
+                  <IoMdVideocam onClick={handelCall} className="scale-150 hover:cursor-pointer" />
                 </div>
                 <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
                   <FaPhone className="scale-125 hover:cursor-pointer" />

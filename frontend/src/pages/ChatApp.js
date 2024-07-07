@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useSocket from "../Socket/Socket";
 function Message(msgs) {
   return (
@@ -7,19 +7,6 @@ function Message(msgs) {
         msgs.msgType === "sent" ? "items-end" : "items-start"
       } px-5`}
     >
-      {/* {msgs.images.length > 0 && (
-        <div className="flex gap-3 pr-9">
-          {msgs.images.map((imgSrc, index) => (
-            <img
-              key={index}
-              loading="lazy"
-              src={imgSrc}
-              alt=""
-              className="shrink-0 w-28 max-w-full aspect-[0.93]"
-            />
-          ))}
-        </div>
-      )} */}
       <div
         className={`px-3 py-2 mt-2 text-base font-medium tracking-tight leading-5 text-white rounded-none shadow-sm ${
           msgs.msgType === "sent" ? "bg-slate-700" : "bg-slate-950"
@@ -45,7 +32,7 @@ function ChatApp(props) {
   const currentTime = `${hours.toString().padStart(2, "0")}:${minutes
     .toString()
     .padStart(2, "0")}`;
-
+  
   const updateParent = (mesg, time, msgType) => {
     const updatedConversations = props.selectedPerson.conversations.map(chat => {
       if (chat.participant === props.sender._id) {
@@ -78,7 +65,7 @@ function ChatApp(props) {
 
     props.onUpdateConversations(updatedConversations);
   }
-
+  
   useEffect(() => {
     socket.on("toReceiver", (data) => {
       if (data.recipient === props.sender._id && data.sender === props.selectedPerson._id) {
@@ -92,12 +79,12 @@ function ChatApp(props) {
     });
 
   });
-
+  
   const updateMsg = (event) => {
     event.preventDefault();
     setMsg(event.target.value);
   };
-
+  
   useEffect(() => {
     const conversation = props.selectedPerson.conversations.find(
       (conversation) => conversation.participant === props.sender._id
@@ -117,7 +104,7 @@ function ChatApp(props) {
       });
     }
   },[props]);
- 
+  
   const updateMessage = (event) => {
     event.preventDefault();
     if (msg.trim() !== "") {
@@ -143,8 +130,20 @@ function ChatApp(props) {
     
   };
 
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    // Scroll to the bottom of the messages container when messages update
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    // Using `current` to access the DOM element
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
   return (
-    <div className="h-full overflow-hidden bg-gradient-to-r from-slate-200 to-slate-300 border-t-0 border-b-0 border-l-0 border-slate-500 border-r-2 ">
+    <div className="h-full overflow-auto bg-gradient-to-r from-slate-200 to-slate-300 border-t-0 border-b-0 border-l-0 border-slate-500 border-r-2">
       <div className="h-[710px] min-w-[750px] max-w-[750px] p-2 overflow-auto">
         <div className="flex gap-5 flex-col md:flex-row">
           <div className="flex flex-col w-full">
@@ -152,6 +151,8 @@ function ChatApp(props) {
               {messages.map((msgs, index) => (
                 <Message key={index} {...msgs} />
               ))}
+              {/* This div acts as a reference point for scrolling to bottom */}
+              <div ref={messagesEndRef}></div>
             </div>
             <div className="flex-grow"></div>
           </div>
@@ -162,13 +163,13 @@ function ChatApp(props) {
         <form
           className=" h-full w-full rounded-full border-black"
           style={{
-            border: "3px solid black",
-            marginBottom: "env(safe-area-inset-bottom)",
+            border: '3px solid black',
+            marginBottom: 'env(safe-area-inset-bottom)',
           }}
           onSubmit={updateMessage}
         >
           <input
-            className="pl-3 h-full w-full rounded-full focus:outline-none "
+            className="pl-3 h-full w-full rounded-full focus:outline-none"
             type="text"
             placeholder="Write a message"
             value={msg}
@@ -178,6 +179,6 @@ function ChatApp(props) {
       </div>
     </div>
   );
-}
-
+} 
+  
 export default ChatApp;

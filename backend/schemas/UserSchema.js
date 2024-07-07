@@ -23,13 +23,20 @@ const UserSchema = new Schema({
             ref: 'User',
         },
         messages: [Message.schema]
-    }],
+    }],     
     status: {
         type: String,
         required: true,
     },
     curr: {
         type: String,
+    },
+    online:{
+        type: Boolean,
+        default:false
+    },
+    socketid:{
+        type:String,
     }
 }, { timestamps: true });
 

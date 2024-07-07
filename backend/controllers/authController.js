@@ -2,7 +2,6 @@ const User = require("../schemas/UserSchema");
 
 const handleAuth = (socket, info, io) => {
   const [name, email] = info;
-  socket.broadcast.emit("userConnected", {socketid:socket.id, email});
   
   User.findOne({ email })
     .then(async (existingData) => {
@@ -11,6 +10,8 @@ const handleAuth = (socket, info, io) => {
           username: name,
           email,
           status: "student",
+          online: true,
+          socketid:socket.id
         });
         await newUser
           .save()
@@ -21,7 +22,10 @@ const handleAuth = (socket, info, io) => {
             console.error("Error saving new user:", err);
           });
       } else {
-        console.log("User already exists");
+        existingData.online = true;
+        existingData.socketid = socket.id;
+        await existingData.save();
+        console.log("User already exists", socket.id);
       }
       User.find()
         .populate({
@@ -31,6 +35,7 @@ const handleAuth = (socket, info, io) => {
         .then((result) => {
           io.emit("get", result);
         });
+      
     })
     .catch((err) => {
       console.error("Error checking user:", err);

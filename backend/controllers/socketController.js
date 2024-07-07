@@ -19,9 +19,24 @@ const handleConnection = (socket, io) => {
     handleMessage(socket, info, io); 
   });
 
-  // socket.on("disconnect", () => {
-  //   console.log(`Socket disconnected: ${socket.id}`);
-  // });
+  socket.on("disconnect", async () => {
+    await User.findOne({socketid:socket.id}).then(async (user)=>{
+      user.online = false;
+      await user.save();
+    });
+    User.find()
+        .populate({
+          path: "conversations.messages",
+          populate: { path: "sender recipient" },
+        })
+        .then((result) => {
+          io.emit("get", result);
+        });
+  });
+
+  socket.on("user_disconnect", msg => {
+    console.log(msg);
+  })
 
   socket.on("makeCall", () => {
     callHandeler(socket, io);
