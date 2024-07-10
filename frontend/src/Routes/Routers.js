@@ -1,15 +1,19 @@
-import React from 'react';
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import FirstPage from '../component/FirstPage';
-import FrontPage from '../component/FrontPage';
+import FrontPage from "../component/FrontPage";
+import { Users } from "../Context/UsersContext";
+import { UseSocket } from "../Context/socketContext";
 
 const Routers = () => {
   return (
     <Router>
-      <Routes>
-        <Route exact path ="/" element={<FirstPage />} />
-        <Route exact path="/in" element={<FrontPage />} />
-      </Routes>
+      <UseSocket>
+        <Users>
+          <Routes>
+            <Route exact path="/in" element={<FrontPage />} />
+          </Routes>
+        </Users>
+      </UseSocket>
     </Router>
   );
 };

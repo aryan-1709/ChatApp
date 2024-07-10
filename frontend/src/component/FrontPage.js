@@ -1,18 +1,18 @@
-import React from 'react'
-import {DashBoard}from './DashBoard'
-import MessagingApp from './MessagingApp'
-import { useLocation } from "react-router-dom";
+import React, { useContext } from "react";
+import { DashBoard } from "./DashBoard";
+import MessagingApp from "./MessagingApp";
+import { UsersContext } from "../Context/UsersContext";
+
 export default function FrontPage() {
-  const location = useLocation();
-  const { name, email } = location.state;
+  const { email, name } = useContext(UsersContext);
   return (
-    <div className='overflow-hidden'>
+    <div className="overflow-hidden">
       <div>
-        <DashBoard email={email} name={name}/>
+        <DashBoard email={email} name={name} />
       </div>
-      <div className='h-[767px] bg-slate-300 w-full'>
+      <div className="h-[767px] bg-slate-300 w-full">
         <MessagingApp />
       </div>
     </div>
-  )
+  );
 }

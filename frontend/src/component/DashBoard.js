@@ -2,7 +2,6 @@ import * as React from "react";
 import Dropdown from "../pages/Dropdown";
 
 function DashBoard({email, name}) {
-  console.log(email);
   return (
     <div className="flex gap-5 justify-between py-1 pr-20 pl-6 bg-slate-300 border border-solid border-slate-950 max-md:flex-wrap max-md:px-5">
       <div className="mt-3">

@@ -3,50 +3,44 @@ import { useState, useEffect } from "react";
 import ChatApp from "../pages/ChatApp";
 import { IoMdVideocam } from "react-icons/io";
 import { FaPhone, FaSearch } from "react-icons/fa";
-import image from "../images/dummy.jpg";
-import UseSocket from "../Socket/Socket";
-import { useLocation } from "react-router-dom";
+import dummy from "../images/dummy.jpg";
+import { useContext } from "react";
+import { UsersContext } from "../Context/UsersContext";
 
 function MessagingApp() {
+  const {users, email, Me} = useContext(UsersContext);
   const [list, setList] = useState([]);
-  const [senderdata, setSenderdata] = useState()
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const location = useLocation();
-  const { name, email } = location.state;
-  const socket = UseSocket();
 
   useEffect(() => {
-    socket.on("get", async (res) => {
-      const filteredList = await res.filter(item => item.username !== name);
-      const senderlist = await res.filter(item => item.email === email);
-      setList(filteredList);
-      setSenderdata(senderlist[0]);
-    });
-
-    return () => {
-      socket.off("get");
-    };
-  }, [socket, email, name]);
+    const filteredList = users.filter((item) => item.email !== email);
+    setList(filteredList);
+  }, [email, users]);
 
   useEffect(() => {
-    socket.on("get", async (res) => {
-      setList([]);
-      const filteredList = await res.filter(item => item.username !== name);
-      setList(filteredList);
-    });
-    return () => {
-      socket.off("get");
-    };
-  },[name, socket]);
+    if(list.length !== 0 && selectedPerson){
+      const user = list.filter((user) => user._id === selectedPerson._id);
+    if(user){
+      const mess = user[0].conversations.filter((convo) => convo.participant === Me._id);
+      let sel = selectedPerson;
+      sel.conversations = user[0].conversations;
+      setSelectedPerson(sel);
+    }
+  }
+  }, [list])
+  
 
   const handlePersonClick = (person) => {
     setSelectedPerson(person);
   };
 
   const chats = (item, index) => {
-    const dotColor = item.online ? 'bg-green-500' : 'bg-red-500';
-    const msgs = senderdata.conversations.filter((convo) => convo.participant === item._id);
-    const latest = msgs[0].messages[msgs[0].messages.length - 1].msg;
+    const dotColor = item.online ? "bg-green-500" : "bg-red-500";
+    const msgs = Me.conversations.filter(
+      (convo) => convo.participant === item._id.toString()
+    );
+    let latest = "";
+    if (msgs[0]) latest = msgs[0].messages[msgs[0].messages.length - 1].msg;
     return (
       <div key={index} onClick={() => handlePersonClick(item)}>
         <div className="flex flex-col pb-0 py-2.5 w-full hover:bg-slate-400/[0.5]">
@@ -67,30 +61,8 @@ function MessagingApp() {
       </div>
     );
   };
-  
 
-  const updateConversations = (updatedConversations) => {
-    const updatedList = list.map(user => {
-      if (user._id === selectedPerson._id) {
-        return {
-          ...user,
-          conversations: updatedConversations
-        };
-      }
-      return user;
-    });
-
-    setSelectedPerson({
-      ...selectedPerson,
-      conversations: updatedConversations
-    });
-
-    setList(updatedList);
-  };
-
-  const handelCall = () => {
-
-  }
+  const handelCall = () => {};
 
   return (
     <div className="flex w-full overflow-auto">
@@ -120,22 +92,29 @@ function MessagingApp() {
         </div>
       </div>
       <div className="flex-grow h-full">
-        {selectedPerson && <ChatApp selectedPerson={selectedPerson} sender={senderdata} onUpdateConversations={updateConversations}/>}
+        {selectedPerson && (
+          <ChatApp
+            selectedPerson={selectedPerson}
+          />
+        )}
       </div>
       {selectedPerson && (
         <div className="w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
           <div>
-            <image
+            <img
               className="rounded-full h-[200px] w-[200px] aspect-w-1 aspect-h-1 shadow-[0_0px_80px_-16px_rgba(0,0,0,0.3)] shadow-black"
-              src={image}
-              alt="no image"
+              src={dummy}
+              alt="No img"
             />
             <div className="mt-6 flex flex-col items-center text-center">
               <div>{selectedPerson.status}</div>
               <div className="text-2xl">~{selectedPerson.username}</div>
               <div className="flex justify-center gap-10 w-full pt-5">
                 <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
-                  <IoMdVideocam onClick={handelCall} className="scale-150 hover:cursor-pointer" />
+                  <IoMdVideocam
+                    onClick={handelCall}
+                    className="scale-150 hover:cursor-pointer"
+                  />
                 </div>
                 <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
                   <FaPhone className="scale-125 hover:cursor-pointer" />

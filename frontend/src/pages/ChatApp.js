@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import useSocket from "../Socket/Socket";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { UsersContext } from "../Context/UsersContext";
+import { SocketContext } from "../Context/socketContext";
+
 function Message(msgs) {
   return (
     <div
@@ -21,78 +23,75 @@ function Message(msgs) {
   );
 }
 
-function ChatApp(props) {
-  const socket = useSocket();
+function ChatApp({ selectedPerson }) {
+  const { Me, setMe } = useContext(UsersContext);
+  const { socket } = useContext(SocketContext);
   const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([]);
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
-  let found = false;
   const currentTime = `${hours.toString().padStart(2, "0")}:${minutes
     .toString()
     .padStart(2, "0")}`;
-  
-  const updateParent = (mesg, time, msgType) => {
-    const updatedConversations = props.selectedPerson.conversations.map(chat => {
-      if (chat.participant === props.sender._id) {
-        found = true;
-        return {
-          ...chat,
-          messages: [
-            ...chat.messages,
-            {
-              msg: mesg,
-              time: time,
-              msgType: msgType,
-            }
-          ]
-        };
-      }
-      return chat;
-    });
 
-    if (!found) {
-      updatedConversations.push({
-        participant: props.sender._id,
-        messages: [{
-          msg: mesg,
-          time: time,
-          msgType: msgType,
-        }]
+  const updateParent = (mesg, time, msgType, recipient) => {
+    const convo = Me.conversations.find(
+      (chat) => chat.participant === recipient.toString()
+    );
+    if (!convo) {
+      let newConversations = Me.conversations;
+      newConversations.push({
+        participant: recipient,
+        messages: [
+          {
+            msg: mesg,
+            time: time,
+            msgType: msgType,
+          },
+        ],
       });
+      setMe({ ...Me, conversations: newConversations });
+    } else {
+      const updatedConversations = Me.conversations.map((convo) => {
+        if (convo.participant.toString() === recipient.toString()) {
+          return {
+            ...convo,
+            messages: [
+              ...convo.messages,
+              {
+                msg: mesg,
+                time: time,
+                msgType: msgType,
+              },
+            ],
+          };
+        }
+        return convo;
+      });
+      setMe({ ...Me, conversations: updatedConversations });
     }
+  };
 
-    props.onUpdateConversations(updatedConversations);
-  }
-  
-  useEffect(() => {
-    socket.on("toReceiver", (data) => {
-      if (data.recipient === props.sender._id && data.sender === props.selectedPerson._id) {
-        console.log("sender");
-        setMessages([
-          ...messages,
-          { msg: data.msg, msgType: data.msgType, time: data.time },
-        ]);
-        updateParent(data.msg, data.time, data.msgType);
-      }
-    });
+  // useEffect(() => {
+  //   socket.on("toReceiver", (data) => {
+  //     updateParent(data.msg, data.time, data.msgType, data.sender);
+  //   });
+  // }, [Me, socket, setMe]);
 
-  });
-  
   const updateMsg = (event) => {
     event.preventDefault();
     setMsg(event.target.value);
   };
   
+
   useEffect(() => {
-    const conversation = props.selectedPerson.conversations.find(
-      (conversation) => conversation.participant === props.sender._id
+    const conversation = Me.conversations.find(
+      (conversation) => conversation.participant === selectedPerson._id
     );
     setMessages([]);
     if (conversation) {
       conversation.messages.forEach((message) => {
-        // Assuming setMessage is a function you want to use to process each message
         setMessages((prevMessages) => [
           ...prevMessages,
           {
@@ -103,14 +102,14 @@ function ChatApp(props) {
         ]);
       });
     }
-  },[props]);
-  
+  }, [selectedPerson, Me]);
+
   const updateMessage = (event) => {
     event.preventDefault();
     if (msg.trim() !== "") {
       const newItem = {
-        sender: props.sender._id,
-        recipient: props.selectedPerson._id,
+        sender: Me._id,
+        recipient: selectedPerson._id,
         msg: msg,
         time: `Today ${currentTime}`,
         msgType: "sent",
@@ -124,24 +123,21 @@ function ChatApp(props) {
           msgType: newItem.msgType,
         },
       ]);
-      setMsg(""); 
-      updateParent(msg, newItem.time, "sent");
+      setMsg("");
+      updateParent(msg, newItem.time, "sent", selectedPerson._id);
     }
-    
   };
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Scroll to the bottom of the messages container when messages update
     scrollToBottom();
   }, [messages]);
 
   const scrollToBottom = () => {
-    // Using `current` to access the DOM element
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
+
   return (
     <div className="h-full overflow-auto bg-gradient-to-r from-slate-200 to-slate-300 border-t-0 border-b-0 border-l-0 border-slate-500 border-r-2">
       <div className="h-[710px] min-w-[750px] max-w-[750px] p-2 overflow-auto">
@@ -151,7 +147,6 @@ function ChatApp(props) {
               {messages.map((msgs, index) => (
                 <Message key={index} {...msgs} />
               ))}
-              {/* This div acts as a reference point for scrolling to bottom */}
               <div ref={messagesEndRef}></div>
             </div>
             <div className="flex-grow"></div>
@@ -163,8 +158,8 @@ function ChatApp(props) {
         <form
           className=" h-full w-full rounded-full border-black"
           style={{
-            border: '3px solid black',
-            marginBottom: 'env(safe-area-inset-bottom)',
+            border: "3px solid black",
+            marginBottom: "env(safe-area-inset-bottom)",
           }}
           onSubmit={updateMessage}
         >
@@ -179,6 +174,6 @@ function ChatApp(props) {
       </div>
     </div>
   );
-} 
-  
+}
+
 export default ChatApp;
