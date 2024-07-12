@@ -1,0 +1,16 @@
+/* styles.css */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  height: 100%;
+}
+
+.draggable-box {
+    z-index: 1000;
+  }

@@ -12,6 +12,9 @@ const Users = ({ children }) => {
   const [email, setEmail] = useState();
   const [Me, setMe] = useState();
   const [enter, setEnter] = useState(1);
+  const [incoming, setIncoming] = useState(false);
+  const [callerSignal, setCallerSignal] = useState();
+  const [callerinfo, setCallerinfo] = useState();
 
   const handleInputName = (event) => {
     event.preventDefault();
@@ -90,10 +93,17 @@ const Users = ({ children }) => {
 
   useEffect(() => {
     socket.on("toReceiver", (data) => {
-      console.log(Me);
       updateParent(data.msg, data.time, data.msgType, data.sender);
     });
   }, [socket, Me, setMe]);
+
+  useEffect(() => {
+    socket.on("callUser", (data) => {
+      setIncoming(true);
+      setCallerinfo(data.from);
+      setCallerSignal(data.signal);
+    });
+  }, [socket]);
 
   return (
     <>
@@ -139,7 +149,20 @@ const Users = ({ children }) => {
         </div>
       )}
       <UsersContext.Provider
-        value={{ users, setusers, name, setName, email, setEmail, Me, setMe }}
+        value={{
+          users,
+          setusers,
+          name,
+          setName,
+          email,
+          setEmail,
+          Me,
+          setMe,
+          incoming,
+          callerSignal,
+          callerinfo,
+          setIncoming,
+        }}
       >
         {children}
       </UsersContext.Provider>

@@ -26,13 +26,6 @@ const handleMessage = async (socket, info, io) => {
       time,
     });
 
-    try {
-      await newMessageSent.save();
-      await newMessageReceived.save();
-    } catch (err) {
-      console.error("Error saving messages:", err);
-    }
-
     // Find or create conversation between sender and recipient
     let senderConversation = senderUser.conversations.find((conv) =>
       conv.participant.equals(recipientUser._id)

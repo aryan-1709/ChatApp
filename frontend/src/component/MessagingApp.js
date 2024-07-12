@@ -6,11 +6,13 @@ import { FaPhone, FaSearch } from "react-icons/fa";
 import dummy from "../images/dummy.jpg";
 import { useContext } from "react";
 import { UsersContext } from "../Context/UsersContext";
+import Call from "./CallComponent/Call";
 
 function MessagingApp() {
-  const {users, email, Me} = useContext(UsersContext);
+  const { users, email, Me, incoming } = useContext(UsersContext);
   const [list, setList] = useState([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const [inCall, setInCall] = useState(false);
 
   useEffect(() => {
     const filteredList = users.filter((item) => item.email !== email);
@@ -18,17 +20,16 @@ function MessagingApp() {
   }, [email, users]);
 
   useEffect(() => {
-    if(list.length !== 0 && selectedPerson){
+    if (list.length !== 0 && selectedPerson) {
       const user = list.filter((user) => user._id === selectedPerson._id);
-    if(user){
-      const mess = user[0].conversations.filter((convo) => convo.participant === Me._id);
-      let sel = selectedPerson;
-      sel.conversations = user[0].conversations;
-      setSelectedPerson(sel);
+      if (user) {
+        // const mess = user[0].conversations.filter((convo) => convo.participant === Me._id);
+        let sel = selectedPerson;
+        sel.conversations = user[0].conversations;
+        setSelectedPerson(sel);
+      }
     }
-  }
-  }, [list])
-  
+  }, [list]);
 
   const handlePersonClick = (person) => {
     setSelectedPerson(person);
@@ -62,10 +63,21 @@ function MessagingApp() {
     );
   };
 
-  const handelCall = () => {};
+  const handelCall = () => {
+    setInCall(true);
+  };
+
+  useEffect(() => {
+    if (incoming) setInCall(true);
+  }, [incoming]);
+
+  const handleCloseCall = () => {
+    setInCall(false);
+  };
 
   return (
     <div className="flex w-full overflow-auto">
+      {inCall && <Call onClose={handleCloseCall} userToCall={selectedPerson} />}
       <div className="flex flex-col justify-start items-center mx-auto min-w-[252px] max-w-[252px] max-h-[750px] overflow-auto bg-slate-300 border-r-2 border-slate-500">
         <div className="bg-slate-400 px-3 w-full sticky top-0 pb-0 border-b-4 border-slate-500">
           <div className="flex gap-5 justify-between self-stretch w-full whitespace-nowrap">
@@ -92,11 +104,7 @@ function MessagingApp() {
         </div>
       </div>
       <div className="flex-grow h-full">
-        {selectedPerson && (
-          <ChatApp
-            selectedPerson={selectedPerson}
-          />
-        )}
+        {selectedPerson && <ChatApp selectedPerson={selectedPerson} />}
       </div>
       {selectedPerson && (
         <div className="w-full h-[710px] flex justify-center pt-8 bg-gradient-to-r from-slate-300 to-slate-200">
@@ -110,7 +118,10 @@ function MessagingApp() {
               <div>{selectedPerson.status}</div>
               <div className="text-2xl">~{selectedPerson.username}</div>
               <div className="flex justify-center gap-10 w-full pt-5">
-                <div className="bg-slate-400/[.5] rounded-full p-7 hover:bg-slate-500 shadow-2xl">
+                <div
+                  onClick={handelCall}
+                  className="bg-slate-400/[.5] hover:cursor-pointer rounded-full p-7 hover:bg-slate-500 shadow-2xl"
+                >
                   <IoMdVideocam
                     onClick={handelCall}
                     className="scale-150 hover:cursor-pointer"

@@ -35,7 +35,6 @@ const handleConnection = (socket, io) => {
         .then((result) => {
           io.emit("get", result);
         });
-      
     } catch (error) {
       console.log("Error Updating");
     }
@@ -43,6 +42,18 @@ const handleConnection = (socket, io) => {
 
   socket.on("makeCall", () => {
     callHandeler(socket, io);
+  });
+
+  socket.on("callUser", (data) => {
+    io.to(data.userToCall).emit("callUser", {
+      signal: data.signalData,
+      from: data.from,
+      name: data.name,
+    });
+  });
+
+  socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal);
   });
 };
 
