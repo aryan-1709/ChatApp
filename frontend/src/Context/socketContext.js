@@ -4,7 +4,7 @@ import io from "socket.io-client";
 const SocketContext = createContext(null); 
 
 const UseSocket = ({ children }) => {
-  const socket = useMemo(() => io("http://localhost:5000"), []);
+  const socket = useMemo(() => io("https://chathub-server-iy0i.onrender.com"), []);
   socket.on("connect", () => console.log("connected"));
 
   return (

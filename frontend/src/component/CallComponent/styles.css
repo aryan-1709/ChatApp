@@ -14,3 +14,27 @@ body,
 .draggable-box {
     z-index: 1000;
   }
+
+  .call-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    color: white;
+  }
+  
+  .video-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
